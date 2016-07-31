@@ -24,12 +24,13 @@ main =
 type alias Model =
     { dieFace : List Int
     , plays : Int
+    , wins : Int
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model [ 0, 0, 0 ] 0, Cmd.none )
+    ( Model [ 0, 0, 0 ] 0 0, Cmd.none )
 
 
 
@@ -45,7 +46,17 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Roll ->
-            ( { model | plays = model.plays + 1 }, Random.generate NewFace (Random.list 3 (Random.int 1 6)) )
+          let
+            playerWon =
+              checkPlayerVictory model
+
+            addStats model =
+              if playerWon then
+                { model | plays = model.plays + 1, wins = model.wins + 1}
+              else
+                { model | plays = model.plays + 1}
+          in
+            ( addStats model, Random.generate NewFace (Random.list 3 (Random.int 1 6)) )
 
         NewFace newFaces ->
             ( { model | dieFace = newFaces }, Cmd.none )
@@ -82,14 +93,24 @@ victoryText playStatus =
         [ text playStatus.text ]
 
 
+checkPlayerVictory model =
+  let
+    getDice =
+        getDicesFromModel model
+  in
+    getDice 0 == getDice 1 && getDice 1 == getDice 2
+
 view : Model -> Html Msg
 view model =
     let
         getDice =
             getDicesFromModel model
 
+        playerWon =
+          checkPlayerVictory model
+
         playStatus =
-            if getDice 0 == getDice 1 && getDice 1 == getDice 2 then
+            if playerWon then
                 { color = "green"
                 , text = "Won!"
                 }
@@ -104,5 +125,6 @@ view model =
             , span [ bigSpanStyle ] [ text (toString (getDice 2)) ]
             , victoryText playStatus
             , p [] [ text ("Total: " ++ toString model.plays) ]
+            , p [] [ text ("Wins: " ++ toString model.wins) ]
             , button [ onClick Roll ] [ text "Roll" ]
             ]
