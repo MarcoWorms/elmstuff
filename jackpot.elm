@@ -30,7 +30,7 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model [ 0, 0, 0 ] 0 0, Cmd.none )
+    ( Model [ 0, 0, 7 ] 0 0, Cmd.none )
 
 
 
