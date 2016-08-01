@@ -132,4 +132,7 @@ view model =
             , p [] [ text ("Wins: " ++ toString model.wins) ]
             , button [ onClick (Roll 1) ] [ text "Roll" ]
             , button [ onClick (Roll 10) ] [ text "Roll 10" ]
+            , button [ onClick (Roll 25) ] [ text "Roll 25" ]
+            , button [ onClick (Roll 50) ] [ text "Roll 50" ]
+            , button [ onClick (Roll 100) ] [ text "Roll 100" ]
             ]
