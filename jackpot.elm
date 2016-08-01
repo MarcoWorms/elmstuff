@@ -38,28 +38,32 @@ init =
 
 
 type Msg
-    = Roll
+    = Roll Int
     | NewFace (List Int)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Roll ->
+        Roll rollAmmount ->
+          let
+            generateRandomRolls =
+              Cmd.batch (List.repeat rollAmmount (Random.generate NewFace (Random.list 3 (Random.int 1 9))))
+          in
+            ( model, generateRandomRolls )
+
+        NewFace newFaces ->
           let
             playerWon =
               checkPlayerVictory model
 
             addStats model =
               if playerWon then
-                { model | plays = model.plays + 1, wins = model.wins + 1}
+                { model | plays = model.plays + 1, dieFace = newFaces, wins = model.wins + 1}
               else
-                { model | plays = model.plays + 1}
+                { model | plays = model.plays + 1, dieFace = newFaces}
           in
-            ( addStats model, Random.generate NewFace (Random.list 3 (Random.int 1 6)) )
-
-        NewFace newFaces ->
-            ( { model | dieFace = newFaces }, Cmd.none )
+            ( addStats model, Cmd.none )
 
 
 
@@ -126,5 +130,6 @@ view model =
             , victoryText playStatus
             , p [] [ text ("Total: " ++ toString model.plays) ]
             , p [] [ text ("Wins: " ++ toString model.wins) ]
-            , button [ onClick Roll ] [ text "Roll" ]
+            , button [ onClick (Roll 1) ] [ text "Roll" ]
+            , button [ onClick (Roll 10) ] [ text "Roll 10" ]
             ]
